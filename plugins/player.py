@@ -83,21 +83,21 @@ async def add_to_playlist(_, message: Message):
                 k=await message.reply("This command is only for admins.")
                 await delete_messages([message, k])
                 return
-        msg = await message.reply_text("⚡️ **Checking recived input..**")
+        msg = await message.reply_text("⚡️ **Recived girişini denetleme..**")
         if message.reply_to_message and message.reply_to_message.video:
-            await msg.edit("⚡️ **Checking Telegram Media...**")
+            await msg.edit("⚡️ **Telegram Medyayı Kontrol Etme...**")
             type='video'
             m_video = message.reply_to_message.video       
         elif message.reply_to_message and message.reply_to_message.document:
-            await msg.edit("⚡️ **Checking Telegram Media...**")
+            await msg.edit("⚡️ **Telegram Medyayı Kontrol Etme...**")
             m_video = message.reply_to_message.document
             type='video'
             if not "video" in m_video.mime_type:
-                return await msg.edit("The given file is invalid")
+                return await msg.edit("verilen dosya geçersiz")
         elif message.reply_to_message and message.reply_to_message.audio:
             #if not Config.IS_VIDEO:
-                #return await message.reply("Play from audio file is available only if Video Mode if turned off.\nUse /settings to configure ypur player.")
-            await msg.edit("⚡️ **Checking Telegram Media...**")
+                #return await message.reply("Ses dosyasından yürüt yalnızca video modu kapalıysa kullanılabilir.\nplayer'ıni yapılandırmak için /settings kullanın.")
+            await msg.edit("⚡️ **Telegram Medyayı Kontrol Etme...**")
             type='audio'
             m_video = message.reply_to_message.audio       
         else:
@@ -107,7 +107,7 @@ async def add_to_playlist(_, message: Message):
                 text = message.text.split(" ", 1)
                 query = text[1]
             else:
-                await msg.edit("You Didn't gave me anything to play.Reply to a video or a youtube link or a direct link.")
+                await msg.edit("Bana oynayacak bir şey vermedin. Videoyu, youtube bağlantısını veya doğrudan bağlantıyı yanıtlama.")
                 await delete_messages([message, msg])
                 return
             regex = r"^(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?"
@@ -186,18 +186,18 @@ async def add_to_playlist(_, message: Message):
             await msg.edit("Media added to playlist")
         elif type in ["youtube", "query", "ytdl_s"]:
             if type=="youtube":
-                await msg.edit("⚡️ **Fetching Video From YouTube...**")
+                await msg.edit("⚡️ **YouTube'dan Video Getirme...**")
                 url=yturl
             elif type=="query":
                 try:
-                    await msg.edit("⚡️ **Fetching Video From YouTube...**")
+                    await msg.edit("⚡️ **YouTube'dan Video Getirme...**")
                     ytquery=ysearch
                     results = YoutubeSearch(ytquery, max_results=1).to_dict()
                     url = f"https://youtube.com{results[0]['url_suffix']}"
                     title = results[0]["title"][:40]
                 except Exception as e:
                     await msg.edit(
-                        "Song not found.\nTry inline mode.."
+                        "Şarkı bulunamadı.\nSatır içi modu deneyin.."
                     )
                     LOGGER.error(str(e), exc_info=True)
                     await delete_messages([message, msg])
@@ -217,7 +217,7 @@ async def add_to_playlist(_, message: Message):
             except Exception as e:
                 LOGGER.error(e, exc_info=True)
                 await msg.edit(
-                    f"YouTube Download Error ❌\nError:- {e}"
+                    f"YouTube İndirme Hatası ❌\nError:- {e}"
                     )
                 LOGGER.error(str(e))
                 await delete_messages([message, msg])
@@ -253,15 +253,15 @@ async def add_to_playlist(_, message: Message):
             await msg.edit("Link added to playlist")
         if not Config.CALL_STATUS \
             and len(Config.playlist) >= 1:
-            await msg.edit("Downloading and Processing...")
+            await msg.edit("karşıdan yükleme ve işleme...")
             await download(Config.playlist[0], msg)
             await play()
         elif (len(Config.playlist) == 1 and Config.CALL_STATUS):
-            await msg.edit("Downloading and Processing...")
+            await msg.edit("karşıdan yükleme ve işleme...")
             await download(Config.playlist[0], msg)  
             await play()
         elif message.command[0] == "fplay":
-            await msg.edit("Downloading and Processing...")
+            await msg.edit("karşıdan yükleme ve işleme...")
             await download(Config.playlist[0], msg)  
             await play()
         else:
@@ -282,11 +282,11 @@ async def add_to_playlist(_, message: Message):
 @Client.on_message(filters.command(["leave", f"leave@{Config.BOT_USERNAME}"]) & admin_filter & chat_filter)
 async def leave_voice_chat(_, m: Message):
     if not Config.CALL_STATUS:        
-        k=await m.reply("Not joined any voicechat.")
+        k=await m.reply("Hiçbir sesli sohbete katılmadı.")
         await delete_messages([m, k])
         return
     await leave_call()
-    k=await m.reply("Succesfully left videochat.")
+    k=await m.reply("Başarıyla video sohbeti bıraktı.")
     await delete_messages([m, k])
 
 
@@ -294,16 +294,16 @@ async def leave_voice_chat(_, m: Message):
 @Client.on_message(filters.command(["shuffle", f"shuffle@{Config.BOT_USERNAME}"]) & admin_filter & chat_filter)
 async def shuffle_play_list(client, m: Message):
     if not Config.CALL_STATUS:
-        k = await m.reply("Not joined any voicechat.")
+        k = await m.reply("Herhangi bir sesli sohbete katılmadı.")
         await delete_messages([m, k])
         return
     else:
         if len(Config.playlist) > 2:
-            k=await m.reply_text(f"Playlist Shuffled.")
+            k=await m.reply_text(f"Çalma Listesi Karıştırıldı.")
             await shuffle_playlist()
             await delete_messages([m, k])            
         else:
-            k=await m.reply_text(f"You cant shuffle playlist with less than 3 songs.")
+            k=await m.reply_text(f"Çalma listesini 3'ten az şarkıyla karıştıramazsınız.")
             await delete_messages([m, k])
 
 
@@ -501,8 +501,8 @@ async def not_chat(_, m: Message):
     else:
         buttons = [
             [
-                InlineKeyboardButton('⚡️Make Own Bot', url='https://github.com/subinps/VCPlayerBot'),
-                InlineKeyboardButton('🧩 Join Here', url='https://t.me/subin_works'),
+                InlineKeyboardButton('⚡️kendi botunu yap', url='https://github.com/subinps/VCPlayerBot'),
+                InlineKeyboardButton('🧩 katıl buraya', url='https://t.me/quickwaste'),
             ]
             ]
         await m.reply("<b>You can't use this bot in this group, for that you have to make your own bot from the [SOURCE CODE](https://github.com/subinps/VCPlayerBot) below.</b>", disable_web_page_preview=True, reply_markup=InlineKeyboardMarkup(buttons))
